@@ -23,7 +23,8 @@ var y = d3.scale.linear()
 
 var line = d3.svg.line()
     .x(function(d, i) { return x(i); })
-    .y(function(d, i) { return y(d) });
+    .y(function(d, i) { return y(d) })
+    .interpolate("monotone");
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -55,7 +56,6 @@ nio.source.socketio(
  ['count_by_time'],
  120 // optional - will immediately stream cached data within the last 120 seconds
 )
-// .pipe(nio.log("before"))
 .pipe(nio.filter(function(chunk) {
    return chunk.count_type === 'countpersec'
 }))
@@ -67,22 +67,22 @@ nio.source.socketio(
   data.push(chunk.count_value)
     path
       .datum(data)
-      .attr("class", "line")
-      .attr("d", line)
-    .transition()
-      .duration(1000)
-      .ease("linear")
-      .attr("d", line)
-      .each("end", chunk);
+      // .attr("d", line)
+      // .transition()
+      //   // .delay(10)
+      //   .duration(1400)
+        .attr("class", "line")
+        // .ease("linear")
+        .attr("d", line)
   if (data.length > n) {
-  //   path
-  //       // .attr("d", line)
-  //       .attr("transform", null)
-  //     .transition()
-  //       .duration(1000)
-  //       .ease("linear")
-  //       .attr("transform", "translate(" + x(-1) + ",0)")
-  //       .each("end", chunk);
+    path
+        .attr("d", line) // immediately prior to the transition, the path is redrawn
+        .attr("transform", null)
+      .transition()
+        .duration(860)
+        .ease("linear")
+        .attr("transform", "translate(" + x(-1) + ",0)") // then a translate is applied
+        // .each("end", chunk);
     data.shift()
   }
   console.log(data);
