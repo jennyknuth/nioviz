@@ -3,7 +3,7 @@ var max = 0;
 var n = 10
 var step = 0
 
-var margin = {top: 20, right: 20, bottom: 20, left: 80},
+var margin = {top: 20, right: 20, bottom: 80, left: 80},
     width = 500 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -12,14 +12,15 @@ var x = d3.scale.linear()
     .range([0, width]);
 
 var y = d3.scale.linear()
-    .domain([0, 100])
+    .domain([0, 90])
     .range([height, 0]);
-
 
 var line = d3.svg.line()
     .x(function(d, i) { return x(i); })
     .y(function(d, i) { return y(d) })
     .interpolate("monotone");
+
+var reset = document.getElementById("reset")
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -29,12 +30,19 @@ var svg = d3.select("body").append("svg")
 
 var maxLine = svg.append('rect')
     .attr("class", "max")
-    .attr("transform", null)
+    // .attr("transform", null)
     .attr("x", 0)
     .attr("y", y(0))
     .attr("width", width)
     .attr("height", 1)
     .attr("opacity", 0)
+
+var maxLabel = svg.append("text")
+    .attr("x", (width - margin.left) / 2)
+    .attr("y",  y(max) - 18 )
+    .style("text-anchor", "start")
+    .attr("class", "maxLabel")
+    .attr("opacity", 0);
 
 svg.append("defs").append("clipPath") // this makes a mask the size of the graphic
     .attr("id", "clip")
@@ -62,6 +70,23 @@ svg.append("g")
     .attr("class", "y axis")
     .call(yAxis);
 
+// text label for the x axis
+svg.append("text")
+    .attr("x", width/2 )
+    .attr("y",  y(0) + margin.bottom/2 )
+    .style("text-anchor", "middle")
+    .text("seconds")
+    .attr("class", "label");
+
+// text label for the y axis
+svg.append("text")
+    .attr("x", x(0) - height/2 )
+    .attr("y",  0 - margin.left/1.5)
+    .attr("transform", "rotate(-90)")
+    .style("text-anchor", "middle")
+    .text("tweets per second")
+    .attr("class", "label");
+
 nio.source.socketio(
  'http://brand.nioinstances.com',
  ['count_by_network'],
@@ -71,7 +96,7 @@ nio.source.socketio(
    return chunk.type === 'twitter'
 }))
 .pipe(nio.pass(function(chunk){
-  if (!max || chunk.count_per_sec > max) {
+  if (!max || chunk.count_per_sec > max) { // fix this!!!
     max = chunk.count_per_sec
   }
 
@@ -105,11 +130,29 @@ nio.source.socketio(
       if (step < n) {
         step += 1
       }
-      return step/(n*2);
+      return step/(n*1.5);
     })
     .attr("y", y(max) - 2)
 
+  maxLabel.transition()
+    // .delay(500)
+    // .duration(500)
+    .attr("opacity", function(){
+      if (step < n) {
+        step += 1
+      }
+      return step/(n*1.5);
+    })
+    .attr("y", y(max) - 18 )
+    .text("max: " + parseInt(max))
+
+
   if (data.length > n + 1) {
+
+    reset.addEventListener('click', function(e) {
+      max = d3.max(data)
+    })
+
     path
         .attr("d", line) // redraw path immediately prior to the transition
         .attr("transform", null)
@@ -118,9 +161,10 @@ nio.source.socketio(
         .ease("linear")
         .attr("transform", "translate(" + x(-1) + ",0)") // then apply translate
         // .each("end", chunk);
-    // x = d3.scale.linear()
-    //     .domain([0, data.length])
-    //     .range([0, width]);
+    x = d3.scale.linear()
+        .domain([0, n])
+        .range([0, width]);
+    console.log('ticks array? ', x.ticks());
     svg.selectAll(".x.axis")
         .call(xAxis) // redraw path immediately prior to the transition
         // .attr("transform", "translate(2,"+ y(0)+")") // then apply translate
@@ -128,9 +172,8 @@ nio.source.socketio(
         .duration(860)
         .ease("linear")
         .attr("transform", "translate(" + x(-1) + ","+ y(0)+")") // then apply translate
-console.log('longest', data.length);
+
     data.shift()
-console.log('shortest', data.length);
     // x = d3.scale.linear()
     //     .domain([0, n])
     //     .range([0, width]);
