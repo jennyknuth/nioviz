@@ -3,7 +3,7 @@
 A simple real-time app using a stream of data from [nio.js](https://github.com/nioinnovation/nio.js) and visualized using [D3.js](http://d3js.org/).
 
 Visualizes a live stream of the number of tweets per second and shows the maximum number of tweets per second 
-for the interval between refreshing or clicking the reset button. 
+for the interval since the last refresh or click of the reset button. 
 
 Simple directory with index.html, style.css, and app.js. Open index.html to run, or see it live here: http://jennyknuth.github.io/nioviz/
 
