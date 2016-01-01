@@ -1,6 +1,7 @@
 var data = [];
 var max = undefined;
 var n = 11
+var step = 0
 
 var margin = {top: 20, right: 20, bottom: 20, left: 40},
     width = 500 - margin.left - margin.right,
@@ -26,15 +27,21 @@ var line = d3.svg.line()
     .y(function(d, i) { return y(d) })
     .interpolate("monotone");
 
-// var maxLine = d3.svg.line()
-//   .x( x(100) )
-//   .y(y(max))
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var maxLine = svg.append('rect')
+    .attr("class", "max")
+    .attr("transform", null)
+    .attr("x", 0)
+    .attr("y", y(50))
+    .attr("width", width)
+    .attr("height", 1)
+    .attr("opacity", 0)
 
 svg.append("defs").append("clipPath") // this makes a mask the size of the graphic
     .attr("id", "clip")
@@ -94,17 +101,25 @@ nio.source.socketio(
   //   .attr('class', 'line')
   //   .attr('d', maxLine)
 
-  svg
-    .append('rect')
-    .attr("class", "max")
-    .attr("transform", null)
-    .attr("x", 0)
-    .attr("y", y(max) - 2)
-  // .transition()
-    // .delay(500)
-    .attr("width", width)
-    .attr("height", 1)
-    // .attr("transform", "translate(0," + y(max + 1) + ")")
+  // svg
+  //   .append('rect')
+  //   .attr("class", "max")
+  //   .attr("transform", null)
+  //   .attr("x", 0)
+  //   // .attr("y", y(max) - 2)
+  //   .attr("width", width)
+  //   .attr("height", 1)
+    maxLine.transition()
+      // .delay(860)
+      // .duration(100)
+      .attr("opacity", function(d, i){
+        while (step < 11) {
+          step += 1
+        }
+        return step/10;
+      })
+      .attr("y", y(max) - 2)
+      // .each("end", chunk);
 
 
   if (data.length > n) {
