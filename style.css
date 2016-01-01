@@ -9,9 +9,19 @@ svg {
 .axis path,
 .axis line {
   fill: none;
-  stroke: none;
+  stroke: black;
   shape-rendering: crispEdges;
 }
+
+.x text,
+.axis path {
+  display: none;
+}
+
+.y text {
+  font-size: 18px;
+}
+
 .max {
   fill: steelblue;
 }
