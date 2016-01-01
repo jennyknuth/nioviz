@@ -1,11 +1,19 @@
 body {
   font-family: sans-serif;
   text-align: center;
+  font-weight: 300;
 }
 
 h1, h2 {
   font-weight: 300;
-  margin: 0 auto;
+}
+
+h1 {
+  margin: .5em auto .1em auto;
+}
+
+h2 {
+  margin: 0 auto 1em auto;
 }
 
 a {
@@ -20,7 +28,6 @@ svg {
 
 input {
   display: block;
-  margin: 0 auto;
   border: none;
   border-radius: 4px;
   background-color: steelblue;
@@ -29,6 +36,7 @@ input {
   font-weight: 300;
   opacity: .75;
   padding: .5em 1em;
+  margin: 2.3em auto;
 }
 
 .line {
@@ -60,4 +68,8 @@ input {
 
 .max {
   stroke: steelblue;
+}
+
+#tweets {
+  color: steelblue;
 }

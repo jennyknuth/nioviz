@@ -1,28 +1,31 @@
 var data = [];
 var max = 0;
-var n = 10;
+var n = 10; // how many data points on the x axis of the chart
+var r = 80; // how many data points on the y axis of the chart
 var step = 0;
 
-var reset = document.getElementById("reset")
+var reset = document.getElementById("reset");
 
-var tweets = document.getElementById("tweets")
-tweets.innerHTML = "00"
+var tweets = document.getElementById("tweets");
+tweets.innerHTML = "00";
 
 var margin = {top: 20, right: 20, bottom: 80, left: 80},
     width = 500 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
+
+var svgWidth = width + margin.left + margin.right; // for centering
 
 var x = d3.scale.linear()
     .domain([0, n])
     .range([0, width]);
 
 var y = d3.scale.linear()
-    .domain([0, 90])
+    .domain([0, r])
     .range([height, 0]);
 
 var line = d3.svg.line()
     .x(function(d, i) { return x(i); })
-    .y(function(d, i) { return y(d) })
+    .y(function(d, i) { return y(d); })
     .interpolate("monotone");
 
 var svg = d3.select("body").append("svg")
@@ -37,10 +40,10 @@ var maxLine = svg.append("rect")
     .attr("y", y(0))
     .attr("width", width)
     .attr("height", 1)
-    .attr("opacity", 0)
+    .attr("opacity", 0);
 
 var maxLabel = svg.append("text")
-    .attr("x", (width - margin.left) / 2)
+    .attr("x", (width-margin.left)/2)
     .attr("y",  y(max) - 18 )
     .style("text-anchor", "start")
     .attr("class", "maxLabel")
@@ -54,8 +57,8 @@ svg.append("defs").append("clipPath")
     .attr("height", height);
 
 var path = svg.append("g")
-  .attr("clip-path", "url(#clip)")
-  .append("path")
+    .attr("clip-path", "url(#clip)")
+  .append("path");
 
 // Define the axes
 var xAxis = d3.svg.axis().scale(x)
@@ -96,15 +99,15 @@ nio.source.socketio(
  120 // optional - will immediately stream cached data within the last 120 seconds
 )
 .pipe(nio.filter(function(chunk) {
-   return chunk.type === "twitter"
+   return chunk.type === "twitter";
 }))
 .pipe(nio.pass(function(chunk){
-  tweets.innerHTML = parseInt(chunk.count_per_sec)
+  tweets.innerHTML = parseInt(chunk.count_per_sec, 10);
   if (chunk.count_per_sec > max) {
-    max = chunk.count_per_sec
+    max = chunk.count_per_sec;
   }
 
-  data.push(chunk.count_per_sec)
+  data.push(chunk.count_per_sec);
 
   path.datum(data)
     .attr("class", "line")
@@ -113,7 +116,7 @@ nio.source.socketio(
   maxLine.transition()
     .attr("opacity", function(){
       if (step < n) {
-        step += 1
+        step += 1;
       }
       return step/(n*1.5);
     })
@@ -122,22 +125,23 @@ nio.source.socketio(
   maxLabel.transition()
     .attr("opacity", function(){
       if (step < n) {
-        step += 1
+        step += 1;
       }
       return step/(n*1.5);
     })
     .attr("y", y(max) - 18 )
-    .text("max: " + parseInt(max));
+    .text("max: " + parseInt(max, 10));
 
   path.append("title")
     .text(function(d) {
-      return parseInt(d);
+      d = parseInt(d, 10);
+      return d;
     });
 
   if (data.length > n + 1) {
 
     reset.addEventListener("click", function(e) {
-      max = d3.max(data)
+      max = d3.max(data);
     });
 
     path
@@ -148,16 +152,16 @@ nio.source.socketio(
         .ease("linear")
         .attr("transform", "translate(" + x(-1) + ",0)"); // then apply translate
 
-    x.domain([1, n + 1]) // expand domain before transition
+    x.domain([1, n + 1]); // expand domain before transition
     svg.selectAll(".x.axis")
-    .call(xAxis) // redraw axis immediate prior to the transition
-      .transition()
+    .call(xAxis) // redraw axis immediately prior to the transition
+    .transition()
       .duration(860)
       .ease("linear")
       .call(xAxis);
 
-    data.shift()
-    x.domain([0, n])
+    data.shift();
+    x.domain([0, n]);
     svg.selectAll(".x.axis")
       .call(xAxis);
   }
