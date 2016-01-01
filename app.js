@@ -6,6 +6,7 @@ var step = 0;
 var reset = document.getElementById("reset")
 
 var tweets = document.getElementById("tweets")
+tweets.innerHTML = "00"
 
 var margin = {top: 20, right: 20, bottom: 80, left: 80},
     width = 500 - margin.left - margin.right,
@@ -98,7 +99,7 @@ nio.source.socketio(
    return chunk.type === "twitter"
 }))
 .pipe(nio.pass(function(chunk){
-  tweets = chunk.count_per_sec
+  tweets.innerHTML = parseInt(chunk.count_per_sec)
   if (chunk.count_per_sec > max) {
     max = chunk.count_per_sec
   }
