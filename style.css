@@ -48,10 +48,10 @@ input {
   fill: steelblue;
 }
 
-/*.x text,
+.x text,
 .axis path {
   display: none;
-}*/
+}
 
 .maxLabel{
   font-variant: small-caps;

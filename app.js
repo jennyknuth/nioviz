@@ -1,7 +1,11 @@
 var data = [];
 var max = 0;
-var n = 10
-var step = 0
+var n = 10;
+var step = 0;
+
+var reset = document.getElementById("reset")
+
+var tweets = document.getElementById("tweets")
 
 var margin = {top: 20, right: 20, bottom: 80, left: 80},
     width = 500 - margin.left - margin.right,
@@ -20,17 +24,14 @@ var line = d3.svg.line()
     .y(function(d, i) { return y(d) })
     .interpolate("monotone");
 
-var reset = document.getElementById("reset")
-
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var maxLine = svg.append('rect')
+var maxLine = svg.append("rect")
     .attr("class", "max")
-    // .attr("transform", null)
     .attr("x", 0)
     .attr("y", y(0))
     .attr("width", width)
@@ -44,7 +45,8 @@ var maxLabel = svg.append("text")
     .attr("class", "maxLabel")
     .attr("opacity", 0);
 
-svg.append("defs").append("clipPath") // this makes a mask the size of the graphic
+// this clipPath makes a mask the size of the graphic
+svg.append("defs").append("clipPath")
     .attr("id", "clip")
   .append("rect")
     .attr("width", width)
@@ -88,55 +90,35 @@ svg.append("text")
     .attr("class", "label");
 
 nio.source.socketio(
- 'http://brand.nioinstances.com',
- ['count_by_network'],
+ "http://brand.nioinstances.com",
+ ["count_by_network"],
  120 // optional - will immediately stream cached data within the last 120 seconds
 )
 .pipe(nio.filter(function(chunk) {
-   return chunk.type === 'twitter'
+   return chunk.type === "twitter"
 }))
 .pipe(nio.pass(function(chunk){
-  if (!max || chunk.count_per_sec > max) { // fix this!!!
+  tweets = chunk.count_per_sec
+  if (chunk.count_per_sec > max) {
     max = chunk.count_per_sec
   }
 
   data.push(chunk.count_per_sec)
+
   path.datum(data)
-    // .attr("d", line)
-    // .transition()
-    //   // .delay(10)
-    //   .duration(1400)
-      .attr("class", "line")
-
-    // .transition()
-    //   .duration(800)
-    //   .attrTween('d', pathTween)
-    //   .ease("linear")
-      .attr("d", line)
-
-// function pathTween() {
-//     var interpolate = d3.scale.quantile()
-//             .domain([0,1])
-//             .range(d3.range(1, data.length + 1));
-//     return function(t) {
-//         return line(data.slice(0, interpolate(t)));
-//     };
-// }
+    .attr("class", "line")
+    .attr("d", line);
 
   maxLine.transition()
-    // .delay(500)
-    // .duration(500)
     .attr("opacity", function(){
       if (step < n) {
         step += 1
       }
       return step/(n*1.5);
     })
-    .attr("y", y(max) - 2)
+    .attr("y", y(max) - 2);
 
   maxLabel.transition()
-    // .delay(500)
-    // .duration(500)
     .attr("opacity", function(){
       if (step < n) {
         step += 1
@@ -144,14 +126,18 @@ nio.source.socketio(
       return step/(n*1.5);
     })
     .attr("y", y(max) - 18 )
-    .text("max: " + parseInt(max))
+    .text("max: " + parseInt(max));
 
+  path.append("title")
+    .text(function(d) {
+      return parseInt(d);
+    });
 
   if (data.length > n + 1) {
 
-    reset.addEventListener('click', function(e) {
+    reset.addEventListener("click", function(e) {
       max = d3.max(data)
-    })
+    });
 
     path
         .attr("d", line) // redraw path immediately prior to the transition
@@ -159,29 +145,21 @@ nio.source.socketio(
       .transition()
         .duration(860)
         .ease("linear")
-        .attr("transform", "translate(" + x(-1) + ",0)") // then apply translate
-        // .each("end", chunk);
-    x = d3.scale.linear()
-        .domain([0, n])
-        .range([0, width]);
-    console.log('ticks array? ', x.ticks());
+        .attr("transform", "translate(" + x(-1) + ",0)"); // then apply translate
+
+    x.domain([1, n + 1]) // expand domain before transition
     svg.selectAll(".x.axis")
-        .call(xAxis) // redraw path immediately prior to the transition
-        // .attr("transform", "translate(2,"+ y(0)+")") // then apply translate
+    .call(xAxis) // redraw axis immediate prior to the transition
       .transition()
-        .duration(860)
-        .ease("linear")
-        .attr("transform", "translate(" + x(-1) + ","+ y(0)+")") // then apply translate
+      .duration(860)
+      .ease("linear")
+      .call(xAxis);
 
     data.shift()
-    // x = d3.scale.linear()
-    //     .domain([0, n])
-    //     .range([0, width]);
+    x.domain([0, n])
     svg.selectAll(".x.axis")
-      .attr("transform", "translate(0," + y(0) + ")")
-      .call(xAxis)
+      .call(xAxis);
   }
-
 
   console.log(data);
   console.log(max);
