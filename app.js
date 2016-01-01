@@ -1,5 +1,5 @@
 var data = [];
-var max = undefined;
+var max = 0;
 var n = 11
 var step = 0
 
