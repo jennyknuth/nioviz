@@ -12,3 +12,6 @@ svg {
   stroke: none;
   shape-rendering: crispEdges;
 }
+.max {
+  fill: steelblue;
+}

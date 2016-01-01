@@ -1,6 +1,6 @@
 var data = [];
 var max = undefined;
-var n = 10
+var n = 11
 
 var margin = {top: 20, right: 20, bottom: 20, left: 40},
     width = 500 - margin.left - margin.right,
@@ -25,6 +25,10 @@ var line = d3.svg.line()
     .x(function(d, i) { return x(i); })
     .y(function(d, i) { return y(d) })
     .interpolate("monotone");
+
+// var maxLine = d3.svg.line()
+//   .x( x(100) )
+//   .y(y(max))
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -65,18 +69,47 @@ nio.source.socketio(
     max = chunk.count_value
   }
   data.push(chunk.count_value)
-    path
-      .datum(data)
-      // .attr("d", line)
-      // .transition()
-      //   // .delay(10)
-      //   .duration(1400)
-        .attr("class", "line")
-        // .ease("linear")
-        .attr("d", line)
+  path.datum(data)
+    // .attr("d", line)
+    // .transition()
+    //   // .delay(10)
+    //   .duration(1400)
+      .attr("class", "line")
+
+    // .transition()
+    //   .duration(800)
+    //   .attrTween('d', pathTween)
+    //   .ease("linear")
+      .attr("d", line)
+
+// function pathTween() {
+//     var interpolate = d3.scale.quantile()
+//             .domain([0,1])
+//             .range(d3.range(1, data.length + 1));
+//     return function(t) {
+//         return line(data.slice(0, interpolate(t)));
+//     };
+// }
+  // path
+  //   .attr('class', 'line')
+  //   .attr('d', maxLine)
+
+  svg
+    .append('rect')
+    .attr("class", "max")
+    .attr("transform", null)
+    .attr("x", 0)
+    .attr("y", y(max) - 2)
+  // .transition()
+    // .delay(500)
+    .attr("width", width)
+    .attr("height", 1)
+    // .attr("transform", "translate(0," + y(max + 1) + ")")
+
+
   if (data.length > n) {
     path
-        .attr("d", line) // immediately prior to the transition, the path is redrawn
+        .attr("d", line) // redraw path immediately prior to the transition
         .attr("transform", null)
       .transition()
         .duration(860)
@@ -85,6 +118,7 @@ nio.source.socketio(
         // .each("end", chunk);
     data.shift()
   }
+
   console.log(data);
   console.log(max);
 }))
