@@ -1,6 +1,6 @@
 var data = [];
 var max = 0;
-var n = 11
+var n = 10
 var step = 0
 
 var margin = {top: 20, right: 20, bottom: 20, left: 40},
@@ -8,25 +8,18 @@ var margin = {top: 20, right: 20, bottom: 20, left: 40},
     height = 500 - margin.top - margin.bottom;
 
 var x = d3.scale.linear()
-    .domain([0, n - 1])
+    .domain([0, n])
     .range([0, width]);
 
 var y = d3.scale.linear()
     .domain([0, 100])
     .range([height, 0]);
 
-//     // Define the axes
-// var xAxis = d3.svg.axis().scale(x)
-//     .orient("bottom").ticks(5);
-//
-// var yAxis = d3.svg.axis().scale(y)
-//     .orient("left").ticks(5);
 
 var line = d3.svg.line()
     .x(function(d, i) { return x(i); })
     .y(function(d, i) { return y(d) })
     .interpolate("monotone");
-
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -38,7 +31,7 @@ var maxLine = svg.append('rect')
     .attr("class", "max")
     .attr("transform", null)
     .attr("x", 0)
-    .attr("y", y(50))
+    .attr("y", y(0))
     .attr("width", width)
     .attr("height", 1)
     .attr("opacity", 0)
@@ -53,14 +46,21 @@ var path = svg.append("g")
 .attr("clip-path", "url(#clip)")
 .append("path")
 
+// Define the axes
+var xAxis = d3.svg.axis().scale(x)
+    .orient("bottom").ticks(5);
+
+var yAxis = d3.svg.axis().scale(y)
+    .orient("left").ticks(10);
+
 svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + y(0) + ")")
-    .call(d3.svg.axis().scale(x).orient("bottom"));
+    .call(xAxis);
 
 svg.append("g")
     .attr("class", "y axis")
-    .call(d3.svg.axis().scale(y).orient("left"));
+    .call(yAxis);
 
 nio.source.socketio(
  'http://brand.nioinstances.com',
@@ -71,7 +71,6 @@ nio.source.socketio(
    return chunk.count_type === 'countpersec'
 }))
 .pipe(nio.pass(function(chunk){
-  // console.log("My value is " + chunk.count_value);
   if (!max || chunk.count_value > max) {
     max = chunk.count_value
   }
@@ -98,40 +97,26 @@ nio.source.socketio(
 //         return line(data.slice(0, interpolate(t)));
 //     };
 // }
-  // path
-  //   .attr('class', 'line')
-  //   .attr('d', maxLine)
 
-  // svg
-  //   .append('rect')
-  //   .attr("class", "max")
-  //   .attr("transform", null)
-  //   .attr("x", 0)
-  //   // .attr("y", y(max) - 2)
-  //   .attr("width", width)
-  //   .attr("height", 1)
-    maxLine.transition()
-      // .delay(860)
-      // .duration(100)
-      .attr("opacity", function(){
-        if (step < n) {
-          step += 1
-        }
-        console.log(step);
-        return step/(n*2);
-      })
-      .attr("y", y(max) - 2)
-      // .each("end", chunk);
+  maxLine.transition()
+    // .delay(860)
+    // .duration(100)
+    .attr("opacity", function(){
+      if (step < n) {
+        step += 1
+      }
+      return step/(n*2);
+    })
+    .attr("y", y(max) - 2)
 
-
-  if (data.length > n) {
+  if (data.length > n + 1) {
     path
         .attr("d", line) // redraw path immediately prior to the transition
         .attr("transform", null)
       .transition()
         .duration(860)
         .ease("linear")
-        .attr("transform", "translate(" + x(-1) + ",0)") // then a translate is applied
+        .attr("transform", "translate(" + x(-1) + ",0)") // then apply translate
         // .each("end", chunk);
     data.shift()
   }
