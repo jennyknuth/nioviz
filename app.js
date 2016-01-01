@@ -75,6 +75,7 @@ nio.source.socketio(
   if (!max || chunk.count_value > max) {
     max = chunk.count_value
   }
+
   data.push(chunk.count_value)
   path.datum(data)
     // .attr("d", line)
@@ -112,11 +113,12 @@ nio.source.socketio(
     maxLine.transition()
       // .delay(860)
       // .duration(100)
-      .attr("opacity", function(d, i){
-        while (step < 11) {
+      .attr("opacity", function(){
+        if (step < n) {
           step += 1
         }
-        return step/10;
+        console.log(step);
+        return step/(n*2);
       })
       .attr("y", y(max) - 2)
       // .each("end", chunk);
