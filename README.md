@@ -1,5 +1,7 @@
 ## How many tweets?
 
+<img src="https://raw.githubusercontent.com/jennyknuth/nioviz/master/nioviz.png" width="300px">
+
 A simple real-time app using a stream of data from [nio.js](https://github.com/nioinnovation/nio.js) and visualized using [D3.js](http://d3js.org/).
 
 Visualizes a live stream of the number of tweets per second and shows the maximum number of tweets per second 
