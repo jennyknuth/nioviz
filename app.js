@@ -13,8 +13,6 @@ var margin = {top: 20, right: 20, bottom: 80, left: 80},
     width = 500 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var svgWidth = width + margin.left + margin.right; // for centering
-
 var x = d3.scale.linear()
     .domain([0, n])
     .range([0, width]);
@@ -25,8 +23,8 @@ var y = d3.scale.linear()
 
 var line = d3.svg.line()
     .x(function(d, i) { return x(i); })
-    .y(function(d, i) { return y(d); })
-    .interpolate("monotone");
+    .y(function(d) { return y(d); })
+    .interpolate("monotone"); // though 'linear' gives more accurate data values…
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -132,7 +130,7 @@ nio.source.socketio(
     .attr("y", y(max) - 18 )
     .text("max: " + parseInt(max, 10));
 
-  path.append("title")
+  path.append("title") // animation is too fast for this to work well
     .text(function(d) {
       d = parseInt(d, 10);
       return d;
@@ -145,12 +143,12 @@ nio.source.socketio(
     });
 
     path
-        .attr("d", line) // redraw path immediately prior to the transition
-        .attr("transform", null)
-      .transition()
-        .duration(860)
-        .ease("linear")
-        .attr("transform", "translate(" + x(-1) + ",0)"); // then apply translate
+    .attr("d", line) // redraw path immediately prior to the transition
+    .attr("transform", null)
+    .transition()
+      .duration(860)
+      .ease("linear")
+      .attr("transform", "translate(" + x(-1) + ",0)"); // then apply translate
 
     x.domain([1, n + 1]); // expand domain before transition
     svg.selectAll(".x.axis")
